@@ -1,12 +1,12 @@
 package sort;
 
-import model.Human;
+import model.FamilyMember;
 
 import java.util.Comparator;
 
-public class HumanBirthDateComparator implements Comparator<Human> {
+public class FamilyMemberNameComparator<T extends FamilyMember> implements Comparator<T> {
     @Override
-    public int compare(Human o1, Human o2) {
-        return o1.getBirthDate().compareTo(o2.getBirthDate());
+    public int compare(T o1, T o2) {
+        return o1.getName().compareTo(o2.getName());
     }
 }

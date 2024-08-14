@@ -1,16 +1,14 @@
-package familyTree;
+package model;
 
-import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Human implements Serializable {
+public class Human extends FamilyMember implements Comparable<Human> {
     private String name;
     private LocalDate birthDate;
-    private LocalDate deathDate;
     private Gender gender;
+    private LocalDate deathDate;
     private List<Human> children;
     private List<Human> parents;
 
@@ -22,22 +20,16 @@ public class Human implements Serializable {
         this.parents = new ArrayList<>();
     }
 
-    public Human(String name, LocalDate birthDate, LocalDate deathDate, Gender gender) {
-        this(name, birthDate, gender);
-        this.deathDate = deathDate;
-    }
-
     public String getName() {
         return name;
     }
 
-    public int getAge() {
-        LocalDate endDate = (deathDate != null) ? deathDate : LocalDate.now();
-        return Period.between(birthDate, endDate).getYears();
-    }
-
     public LocalDate getBirthDate() {
         return birthDate;
+    }
+
+    public Gender getGender() {
+        return gender;
     }
 
     public LocalDate getDeathDate() {
@@ -48,17 +40,12 @@ public class Human implements Serializable {
         this.deathDate = deathDate;
     }
 
-    public Gender getGender() {
-        return gender;
-    }
-
     public List<Human> getChildren() {
         return children;
     }
 
     public void addChild(Human child) {
-        this.children.add(child);
-        child.addParent(this);
+        children.add(child);
     }
 
     public List<Human> getParents() {
@@ -66,10 +53,24 @@ public class Human implements Serializable {
     }
 
     public void addParent(Human parent) {
-        this.parents.add(parent);
+        parents.add(parent);
+    }
+
+    @Override
+    public int compareTo(Human other) {
+        return this.name.compareTo(other.name);
     }
 
     public boolean isAlive() {
         return deathDate == null;
+    }
+
+    public int getAge() {
+        LocalDate today = LocalDate.now();
+        int age = today.getYear() - birthDate.getYear();
+        if (today.getMonthValue() < birthDate.getMonthValue() || (today.getMonthValue() == birthDate.getMonthValue() && today.getDayOfMonth() < birthDate.getDayOfMonth())) {
+            age--;
+        }
+        return age;
     }
 }
