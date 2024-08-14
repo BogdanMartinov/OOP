@@ -1,4 +1,4 @@
-package FamilyTree;
+package familyTree;
 import writer.FileHandler;
 import writer.Writer;
 

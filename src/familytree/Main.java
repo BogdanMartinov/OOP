@@ -1,49 +1,37 @@
-import writer.FileHandler;
-import writer.Writer;
+package familytree;
 
-import FamilyTree.FamilyTree;
-import FamilyTree.Gender;
-import FamilyTree.Human;
-import writer.FileHandler;
-import writer.Writer;
-import Sort.Sorter;
-
+import model.FamilyTree;
+import model.Gender;
+import model.Human;
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+
 public class Main {
+
     public static void main(String[] args) {
-        FamilyTree familyTree = createFamilyTree();
+        FamilyTree<Human> familyTree = createFamilyTree();
 
         // Сохранение дерева в файл
         saveTree(familyTree);
-        familyTree.save("src/writer/tree.txt");
 
         // Чтение дерева из файла
-        FamilyTree loadedTree = readTree();
-        loadedTree = FamilyTree.read("src/writer/tree.txt");
+        FamilyTree<Human> loadedTree = readTree();
 
         // Сортировка и вывод по имени
-        Sorter.sortByName(loadedTree.getPeople());
+        Collections.sort(loadedTree.getPeople());
         System.out.println("Сортировка по имени:");
         printFamilyTree(loadedTree);
+
         // Сортировка и вывод по дате рождения
-        Sorter.sortByBirthDate(loadedTree.getPeople());
+        Collections.sort(loadedTree.getPeople(), Comparator.comparing(Human::getBirthDate));
         System.out.println("Сортировка по дате рождения:");
         printFamilyTree(loadedTree);
     }
 
-    private static FamilyTree readTree() {
-        Writer fileHandler = new FileHandler();
-        return (FamilyTree) fileHandler.read();
-    }
-
-    private static void saveTree(FamilyTree tree) {
-        Writer fileHandler = new FileHandler();
-        fileHandler.save(tree);
-    }
-
-    private static FamilyTree createFamilyTree() {
-        FamilyTree familyTree = new FamilyTree();
+    private static FamilyTree<Human> createFamilyTree() {
+        FamilyTree<Human> familyTree = new FamilyTree<>();
 
         Human ivan = new Human("Иван", LocalDate.of(1974, 6, 1), Gender.MALE);
         Human maria = new Human("Мария", LocalDate.of(1979, 8, 15), Gender.FEMALE);
@@ -53,19 +41,33 @@ public class Main {
         maria.setDeathDate(LocalDate.of(2023, 4, 10));
         ivan.addChild(mikhail);
         ivan.addChild(anna);
+
         familyTree.addHuman(ivan);
         familyTree.addHuman(maria);
         familyTree.addHuman(mikhail);
         familyTree.addHuman(anna);
+
         return familyTree;
     }
-    private static void printFamilyTree(FamilyTree familyTree) {
-        for (Human person : familyTree) {
+
+    private static void saveTree(FamilyTree tree) {
+        Writer fileHandler = new FileHandler();
+        fileHandler.save(tree);
+    }
+
+    private static FamilyTree<Human> readTree() {
+        Writer fileHandler = new FileHandler();
+        return (FamilyTree<Human>) fileHandler.read();
+    }
+
+    private static void printFamilyTree(FamilyTree<Human> familyTree) {
+        for (Human person : familyTree.getPeople()) {
             printHumanDetails(person);
         }
     }
+
     private static void printHumanDetails(Human human) {
-        System.out.print(human.getName() + ", Дата Рождения: " + human.getBirthDate());
+        System.out.print(human.getName() + ", Дата рождения: " + human.getBirthDate());
         if (human.isAlive()) {
             System.out.println(", Возраст: " + human.getAge());
         } else {
