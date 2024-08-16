@@ -1,23 +1,30 @@
 package model;
 
+import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Human extends FamilyMember implements Comparable<Human> {
+public class Human extends FamilyMember implements Serializable {
     private String name;
     private LocalDate birthDate;
-    private Gender gender;
     private LocalDate deathDate;
+    private Gender gender;
     private List<Human> children;
     private List<Human> parents;
 
     public Human(String name, LocalDate birthDate, Gender gender) {
-        this.name = name;
+        super(name);
         this.birthDate = birthDate;
         this.gender = gender;
         this.children = new ArrayList<>();
         this.parents = new ArrayList<>();
+    }
+
+    public Human(String name, LocalDate birthDate, LocalDate deathDate, Gender gender) {
+        this(name, birthDate, gender);
+        this.deathDate = deathDate;
     }
 
     public String getName() {
@@ -28,10 +35,6 @@ public class Human extends FamilyMember implements Comparable<Human> {
         return birthDate;
     }
 
-    public Gender getGender() {
-        return gender;
-    }
-
     public LocalDate getDeathDate() {
         return deathDate;
     }
@@ -40,25 +43,21 @@ public class Human extends FamilyMember implements Comparable<Human> {
         this.deathDate = deathDate;
     }
 
-    public List<Human> getChildren() {
-        return children;
+    public Gender getGender() {
+        return gender;
     }
 
-    public void addChild(Human child) {
-        children.add(child);
+    public List<Human> getChildren() {
+        return children;
     }
 
     public List<Human> getParents() {
         return parents;
     }
 
-    public void addParent(Human parent) {
-        parents.add(parent);
-    }
-
-    @Override
-    public int compareTo(Human other) {
-        return this.name.compareTo(other.name);
+    public void addChild(Human child) {
+        this.children.add(child);
+        child.getParents().add(this);
     }
 
     public boolean isAlive() {
@@ -66,11 +65,7 @@ public class Human extends FamilyMember implements Comparable<Human> {
     }
 
     public int getAge() {
-        LocalDate today = LocalDate.now();
-        int age = today.getYear() - birthDate.getYear();
-        if (today.getMonthValue() < birthDate.getMonthValue() || (today.getMonthValue() == birthDate.getMonthValue() && today.getDayOfMonth() < birthDate.getDayOfMonth())) {
-            age--;
-        }
-        return age;
+        LocalDate endDate = (deathDate != null) ? deathDate : LocalDate.now();
+        return Period.between(birthDate, endDate).getYears();
     }
 }

@@ -3,6 +3,10 @@ package familytree;
 import model.FamilyTree;
 import model.Gender;
 import model.Human;
+import presenter.FamilyTreePresenter;
+import sort.Sorter;
+import writer.FileHandler;
+
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Comparator;
@@ -12,6 +16,22 @@ public class Main {
 
     public static void main(String[] args) {
         FamilyTree<Human> familyTree = createFamilyTree();
+        FamilyTreeView view = new FamilyTreeView();
+        FamilyTreePresenter presenter = new FamilyTreePresenter(familyTree, view);
+
+        presenter.addHuman("John", LocalDate.of(1990, 1, 1), Gender.MALE);
+        presenter.addHuman("Jane", LocalDate.of(1995, 1, 1), Gender.FEMALE);
+        presenter.addHuman("Alice", LocalDate.of(2020, 1, 1), Gender.FEMALE);
+
+        presenter.createRelationship("John", "Alice");
+        presenter.createRelationship("Jane", "Alice");
+
+        presenter.displayHumanDetails("Alice");
+        presenter.sortAndDisplayByName();
+        presenter.sortAndDisplayByBirthDate();
+
+        presenter.saveTree("family_tree.txt");
+        presenter.loadTree("family_tree.txt");
 
         // Сохранение дерева в файл
         saveTree(familyTree);
@@ -20,14 +40,32 @@ public class Main {
         FamilyTree<Human> loadedTree = readTree();
 
         // Сортировка и вывод по имени
-        Collections.sort(loadedTree.getPeople());
+        Sorter.sortByName(loadedTree.getPeople());
         System.out.println("Сортировка по имени:");
         printFamilyTree(loadedTree);
 
         // Сортировка и вывод по дате рождения
-        Collections.sort(loadedTree.getPeople(), Comparator.comparing(Human::getBirthDate));
+        Sorter.sortByBirthDate(loadedTree.getPeople());
         System.out.println("Сортировка по дате рождения:");
         printFamilyTree(loadedTree);
+
+        FileHandler fileHandler = new FileHandler();
+
+        // Create a sample FamilyTree object
+        FamilyTree<Human> sampleFamilyTree = new FamilyTree<>();
+        // Add some humans to the tree...
+
+        // Save the family tree to a file
+        fileHandler.save(sampleFamilyTree);
+
+        // Read the family tree from the file
+        FamilyTree<Human> loadedSampleTree = (FamilyTree<Human>) fileHandler.read();
+
+        if (loadedSampleTree != null) {
+            System.out.println("Sample family tree loaded successfully.");
+        } else {
+            System.out.println("Failed to load sample family tree.");
+        }
     }
 
     private static FamilyTree<Human> createFamilyTree() {
